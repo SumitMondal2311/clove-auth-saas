@@ -1,10 +1,7 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
+import { handleAsync } from "../utils/handle-async";
+import { health } from "./health.route.js";
 
 export const router = Router();
 
-router.get("/health", (_req: Request, res: Response) => {
-    res.status(200).json({
-        uptime: process.uptime(),
-        message: "OK",
-    });
-});
+router.get("/health", handleAsync(health));

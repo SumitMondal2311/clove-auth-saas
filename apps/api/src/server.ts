@@ -24,10 +24,10 @@ let shuttingDown = false;
 
 process.on("unhandledRejection", (error: Error) => {
     console.error("Error unhandled rejection:", error);
-    process.exit();
+    process.exit(1);
 });
 
 process.on("uncaughtException", (error: Error) => {
     console.error("Error uncaught exception:", error);
-    process.exit();
+    process.exit(1);
 });
