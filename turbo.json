@@ -6,8 +6,21 @@
         },
         "api#build": {
             "dependsOn": ["^build"],
-            "env": ["NODE_ENV", "PORT", "API_ORIGIN", "WEB_ORIGIN"],
+            "env": ["NODE_ENV", "PORT", "API_ORIGIN", "WEB_ORIGIN", "DB_URL", "DB_MAX_RETRIES"],
             "outputs": ["dist/**"]
+        },
+        "db:deploy": {
+            "cache": false
+        },
+        "db:migrate": {
+            "cache": false,
+            "persistent": true
+        },
+        "db:generate": {
+            "cache": false
+        },
+        "db:push": {
+            "cache": false
         },
         "check-types": {
             "dependsOn": ["^check-types"]

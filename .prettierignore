@@ -3,6 +3,7 @@ dist
 build
 out
 Dockerfile
+docker-compose.*.yml
 docker-compose.yml
 generated
 migrations

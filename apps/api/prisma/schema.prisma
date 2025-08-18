@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DB_URL")
+}
+
+// ====================
+// Enums
+// ====================
+
+enum UserStatus {
+  INACTIVE
+  ACTIVE
+  PENDING_VERIFICATION
+  PENDING_DELETION
+  DELETED
+}
+
+enum OAuthProvider {
+  LOCAL
+  DISCORD
+  GOOGLE
+  X
+  FACEBOOK
+  APPLE
+  GITHUB
+}
+
+enum LoginMethod {
+  EMAIL
+  SMS
+  BACKUP_CODES
+  OAUTH
+  TOTP
+  WEBAUTHN
+}
+
+enum TokenType {
+  MFA_CHALLENGE
+  EMAIL_VERIFICATION
+  PASSWORD_CHANGE
+}
+
+enum MfaType {
+  EMAIL
+  SMS
+  BACKUP_CODES
+  TOTP
+  WEBAUTHN
+}
+
+enum AuditEvent {
+  ACCOUNT_CREATED
+  EMAIL_VERIFIED
+  LOGGED_INTO_ACCOUNT
+  SUSPICIOUS_LOGIN
+  SETUP_MFA
+  MFA_DISABLED
+  PASSWORD_CHANGE_REQUESTED
+  PASSWORD_CHANGED
+}
+
+// ====================
+// Models
+// ====================
+
+model User {
+  id          String     @id() @default(uuid()) @db.Uuid
+  mfaEnabled  Boolean    @default(false)
+  mobile      String?
+  status      UserStatus @default(PENDING_VERIFICATION)
+  lastLoginIp String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  accounts       Account[]
+  emailAddresses Email[]
+  sessions       Session[]
+  tokens         Token[]
+  mfaFactors     MfaFactor[]
+  auditLogs      AuditLog[]
+  BackupCode     BackupCode[]
+}
+
+model Account {
+  id             String        @id @default(uuid()) @db.Uuid
+  provider       OAuthProvider @default(LOCAL)
+  providerUserId String        @unique // LOCAL - email
+  password       String? // hashed
+  refreshToken   String? // hashed
+  userId         String        @db.Uuid
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model Email {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  email     String   @unique @db.VarChar(320)
+  verified  Boolean  @default(false)
+  primary   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, email])
+  @@index([userId])
+}
+
+model Session {
+  id           String      @id @default(uuid()) @db.Uuid
+  userAgent    String?
+  ipAddress    String?
+  refreshToken String      @unique // hashed
+  userId       String      @db.Uuid
+  loginMethod  LoginMethod @default(EMAIL)
+  revoked      Boolean     @default(false)
+  lastActiveAt DateTime    @default(now())
+  expiresAt    DateTime
+  lastRotateAt DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Token {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  type      TokenType
+  value     String    @unique
+  ipAddress String?
+  userAgent String?
+  used      Boolean   @default(false)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model MfaFactor {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  type      MfaType
+  ipAddress String?
+  userAgent String?
+  secret    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  backupCodes BackupCode[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model BackupCode {
+  id        String   @id @default(uuid()) @db.Uuid
+  factorId  String   @db.Uuid
+  value     String // hashed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  factor MfaFactor @relation(fields: [factorId], references: [id], onDelete: Cascade)
+  User   User?     @relation(fields: [userId], references: [id])
+  userId String?   @db.Uuid
+
+  @@index([factorId])
+}
+
+model AuditLog {
+  id        String     @id @default(uuid()) @db.Uuid
+  userId    String     @db.Uuid
+  event     AuditEvent
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

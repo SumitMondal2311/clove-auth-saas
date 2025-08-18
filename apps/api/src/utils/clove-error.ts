@@ -27,7 +27,7 @@ export class CloveError extends Error {
         return {
             name: this.name,
             statusCode: this.statusCode,
-            details: this.details,
+            message: this.message,
             metadata: this.metadata,
         };
     }

@@ -1,8 +1,10 @@
-import z from "zod";
+import z, { number } from "zod";
 
 export const envSchema = z.object({
     NODE_ENV: z.enum(["development", "test", "production"]),
     PORT: z.string().min(4).transform(Number),
     WEB_ORIGIN: z.string(),
     API_ORIGIN: z.string().optional(),
+    DB_URL: z.string(),
+    DB_MAX_RETRIES: z.string().transform(Number),
 });
