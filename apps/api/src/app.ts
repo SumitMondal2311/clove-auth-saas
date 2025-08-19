@@ -31,7 +31,7 @@ app.use("/api", router);
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof CloveError) {
         console.error(err.details);
-        res.status(err.statusCode).json(err.toJSON());
+        return res.status(err.statusCode).json(err.toJSON());
     }
 
     res.status(500).json({

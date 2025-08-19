@@ -26,5 +26,5 @@ if (!parsedSchema.success) {
 export const env = parsedSchema.data;
 
 if (env.NODE_ENV !== "production") {
-    env.API_ORIGIN = `http://localhost:${env.PORT}/api`;
+    env.API_ORIGIN = `http://localhost:${env.PORT}`;
 }
