@@ -1,12 +1,5 @@
 import { existsSync, readFileSync } from "fs";
-import {
-    JsonWebTokenError,
-    NotBeforeError,
-    sign,
-    SignOptions,
-    TokenExpiredError,
-    verify,
-} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { resolve } from "path";
 import { env } from "../configs/env.js";
 import { prisma, Session } from "../db/index.js";
@@ -14,7 +7,7 @@ import { AuthPayload } from "../types/auth-payload.js";
 import { CloveError } from "./clove-error.js";
 import { getUUID } from "./crypto.js";
 
-const secretsDir = resolve(process.cwd(), "src/secrets");
+const secretsDir = resolve(process.cwd(), "secrets");
 if (existsSync(secretsDir) === false) {
     console.error("Missing secrets directory");
     process.exit(1);
@@ -26,14 +19,17 @@ if (!privateKey) {
     process.exit(1);
 }
 
-export const signToken = (payload: AuthPayload, expiresIn: SignOptions["expiresIn"]): string => {
+export const signToken = (
+    payload: AuthPayload,
+    expiresIn: jwt.SignOptions["expiresIn"]
+): string => {
     payload = {
         ...payload,
         iss: env.JWT_ISS,
         jti: getUUID(),
         kid: env.JWT_KID,
     } as AuthPayload;
-    return sign(payload, privateKey, {
+    return jwt.sign(payload, privateKey, {
         expiresIn,
         algorithm: "RS256",
     });
@@ -52,7 +48,7 @@ export const verifyToken = async (
     session: Session;
 }> => {
     try {
-        const payload = verify(token, publicKey, {
+        const payload = jwt.verify(token, publicKey, {
             algorithms: ["RS256"],
             issuer: env.JWT_ISS,
             audience: env.API_ORIGIN,
@@ -80,9 +76,9 @@ export const verifyToken = async (
         };
     } catch (error) {
         if (
-            error instanceof TokenExpiredError ||
-            error instanceof NotBeforeError ||
-            error instanceof JsonWebTokenError
+            error instanceof jwt.TokenExpiredError ||
+            error instanceof jwt.NotBeforeError ||
+            error instanceof jwt.JsonWebTokenError
         ) {
             throw new CloveError(401, {
                 message: "Invalid, expired or malformed token",

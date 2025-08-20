@@ -40,7 +40,10 @@ export const signupService = async ({
         } else {
             const newUser = await tx.user.create({
                 data: {
-                    lastLoginIp: ipAddress,
+                    lastLoginInfo: {
+                        ipAddress,
+                        userAgent,
+                    },
                 },
             });
             userId = newUser.id;

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { authSchema } from "../../configs/validator.js";
 import { signupService } from "../../services/auth/signup.service.js";
 import { CloveError } from "../../utils/clove-error.js";
-import { getNormalizedIP } from "../../utils/get-normalized-ip.js";
+import { normalizedIP } from "../../utils/normalized-ip.js";
 
 export const signupController = async (req: Request, res: Response, next: NextFunction) => {
     const parsedSchema = authSchema.safeParse(req.body);
@@ -24,7 +24,7 @@ export const signupController = async (req: Request, res: Response, next: NextFu
     const { email, password } = parsedSchema.data;
     const { verificationToken, status } = await signupService({
         userAgent: req.headers["user-agent"],
-        ipAddress: getNormalizedIP(req.ip || "unknown"),
+        ipAddress: normalizedIP(req.ip || "unknown"),
         email,
         password,
     });

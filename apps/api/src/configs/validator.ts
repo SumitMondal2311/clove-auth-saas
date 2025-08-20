@@ -10,7 +10,7 @@ export const envSchema = z.object({
     DB_MAX_RETRIES: z.string().transform(Number),
     JWT_KID: z.string(),
     JWT_ISS: z.string(),
-    SESSION_LIMIT: z.string(),
+    SESSION_LIMIT: z.string().transform(Number),
     REFRESH_TOKEN_EXPIRY: z.string().transform((str) => eval(str)),
     ACCESS_TOKEN_EXPIRY: z.string().transform((str) => eval(str)),
     EMAIL_VERIFICATION_TOKEN_EXPIRY_MS: z.string().transform((str) => eval(str)),

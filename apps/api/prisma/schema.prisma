@@ -69,13 +69,13 @@ enum AuditEvent {
 // ====================
 
 model User {
-  id          String     @id() @default(uuid()) @db.Uuid
-  mfaEnabled  Boolean    @default(false)
-  mobile      String?
-  status      UserStatus @default(PENDING_VERIFICATION)
-  lastLoginIp String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id            String     @id() @default(uuid()) @db.Uuid
+  mfaEnabled    Boolean    @default(false)
+  mobile        String?
+  status        UserStatus @default(PENDING_VERIFICATION)
+  lastLoginInfo Json
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   accounts       Account[]
   emailAddresses Email[]
