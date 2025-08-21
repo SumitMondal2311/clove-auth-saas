@@ -30,7 +30,7 @@ export const authMiddleware = async (req: Request, _res: Response, next: NextFun
         return next(
             new CloveError(401, {
                 message: "Invalid token type",
-                details: "Expected access token",
+                details: "Token type expected: access",
             })
         );
     }

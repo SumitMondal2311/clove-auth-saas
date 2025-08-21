@@ -5,7 +5,6 @@ import { env } from "../configs/env.js";
 import { findSession } from "../db/queries/session.query.js";
 import { AuthPayload } from "../types/auth-payload.js";
 import { CloveError } from "./clove-error.js";
-import { getUUID } from "./crypto.js";
 
 const secretsDir = resolve(process.cwd(), "secrets");
 if (existsSync(secretsDir) === false) {
@@ -26,7 +25,6 @@ export const signToken = (
     payload = {
         ...payload,
         iss: env.JWT_ISS,
-        jti: getUUID(),
         kid: env.JWT_KID,
     } as AuthPayload;
     return jwt.sign(payload, privateKey, {

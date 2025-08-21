@@ -15,11 +15,10 @@ export const logoutService = async ({
     userAgent?: string;
 }) => {
     const { sub, jti, exp, session_id, type } = await verifyToken(refreshToken);
-
     if (type !== "refresh") {
         throw new CloveError(401, {
             message: "Invalid token type",
-            details: "Expected refresh token",
+            details: "Token type expected: refresh",
         });
     }
 

@@ -1,4 +1,4 @@
-import { compare, hash } from "bcryptjs";
+import { compare } from "bcryptjs";
 import { constant } from "../../configs/constant.js";
 import { env } from "../../configs/env.js";
 import { prisma, User } from "../../db/index.js";
@@ -99,12 +99,14 @@ export const loginService = async ({
         await revokeSession(sessions[0].id);
     }
 
+    const refreshJti = getUUID();
     const sessionId = getUUID();
     const refreshToken = signToken(
         {
             sub: user.id,
             session_id: sessionId,
             type: "refresh",
+            jti: refreshJti,
         },
         env.REFRESH_TOKEN_EXPIRY
     );
@@ -127,7 +129,7 @@ export const loginService = async ({
                 expiresAt: expiresAt(constant.REFRESH_TOKEN_EXPIRY_MS),
                 ipAddress,
                 userAgent,
-                refreshToken: await hash(refreshToken, 10),
+                refreshJti,
                 user: {
                     connect: {
                         id: user.id,

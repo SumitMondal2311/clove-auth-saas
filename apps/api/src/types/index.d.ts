@@ -1,5 +1,3 @@
-import { Request } from "express";
-import { AuthPayload } from "./auth-payload.js";
 import { User } from "../db/index.js";
 
 declare global {
@@ -8,7 +6,6 @@ declare global {
             authData?: {
                 sessionId?: string;
                 user?: User;
-                accessJti?: string;
             };
         }
     }
