@@ -4,7 +4,7 @@ import { env } from "../../configs/env.js";
 import { prisma, User } from "../../db/index.js";
 import { findLocalAccount } from "../../db/queries/account.query.js";
 import { findEmailByAddressIncludeUser } from "../../db/queries/email.query.js";
-import { findAllSessionByAsc, revokeSession } from "../../db/queries/session.query.js";
+import { findAllSessionByUserId, revokeSession } from "../../db/queries/session.query.js";
 import { CloveError } from "../../utils/clove-error.js";
 import { getToken, getUUID } from "../../utils/crypto.js";
 import { expiresAt } from "../../utils/expires-at.js";
@@ -92,7 +92,9 @@ export const loginService = async ({
         });
     }
 
-    const sessions = await findAllSessionByAsc(user.id);
+    const sessions = await findAllSessionByUserId(user.id, {
+        lastActiveAt: "asc",
+    });
     if (sessions.length >= env.SESSION_LIMIT) {
         await revokeSession(sessions[0].id);
     }
@@ -108,7 +110,7 @@ export const loginService = async ({
     );
 
     await prisma.$transaction(async (tx) => {
-        const updatedUser = await tx.user.update({
+        await tx.user.update({
             data: {
                 lastLoginInfo: {
                     ipAddress,

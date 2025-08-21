@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "fs";
 import jwt from "jsonwebtoken";
 import { resolve } from "path";
 import { env } from "../configs/env.js";
-import { prisma, Session } from "../db/index.js";
+import { findSession } from "../db/queries/session.query.js";
 import { AuthPayload } from "../types/auth-payload.js";
 import { CloveError } from "./clove-error.js";
 import { getUUID } from "./crypto.js";
@@ -35,45 +35,28 @@ export const signToken = (
     });
 };
 
-const publicKey = readFileSync(resolve(secretsDir, "private.pem"), "utf8");
+const publicKey = readFileSync(resolve(secretsDir, "public.pem"), "utf8");
 if (!publicKey) {
-    console.error("Missing private key");
+    console.error("Missing public key");
     process.exit(1);
 }
 
-export const verifyToken = async (
-    token: string
-): Promise<{
-    payload: AuthPayload;
-    session: Session;
-}> => {
+export const verifyToken = async (token: string): Promise<AuthPayload> => {
     try {
         const payload = jwt.verify(token, publicKey, {
             algorithms: ["RS256"],
             issuer: env.JWT_ISS,
-            audience: env.API_ORIGIN,
         }) as AuthPayload;
 
-        const { sub, session_id } = payload;
-
-        const session = await prisma.session.findFirst({
-            where: {
-                id: session_id,
-                userId: sub,
-            },
-        });
-
+        const session = await findSession(payload.session_id || "sessionId");
         if (!session) {
             throw new CloveError(404, {
-                message: "Session didn't exists",
-                details: "Session didn't exists",
+                message: "Session not found",
+                details: "No session found with the payload session id",
             });
         }
 
-        return {
-            payload,
-            session,
-        };
+        return payload;
     } catch (error) {
         if (
             error instanceof jwt.TokenExpiredError ||
@@ -82,13 +65,10 @@ export const verifyToken = async (
         ) {
             throw new CloveError(401, {
                 message: "Invalid, expired or malformed token",
-                details: "Invalid, expired or malformed token",
+                details: "Token is either Invalid or expired or malformed by the user",
             });
         }
 
-        throw new CloveError(500, {
-            message: "Failed to verify token",
-            details: "Failed to verify token",
-        });
+        throw error;
     }
 };

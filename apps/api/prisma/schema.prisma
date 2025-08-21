@@ -62,6 +62,7 @@ enum AuditEvent {
   MFA_DISABLED
   PASSWORD_CHANGE_REQUESTED
   PASSWORD_CHANGED
+  LOGGED_OUT
 }
 
 // ====================

@@ -1,18 +1,24 @@
-import { prisma } from "../index.js";
+import { Prisma, prisma } from "../index.js";
 
-export const findAllSessionByAsc = (userId: string) => {
+export const findSession = (sessionId: string) => {
+    return prisma.session.findUnique({
+        where: {
+            revoked: false,
+            id: sessionId,
+        },
+    });
+};
+
+export const findAllSessionByUserId = (
+    userId: string,
+    orderBy: Prisma.SessionOrderByWithAggregationInput
+) => {
     return prisma.session.findMany({
         where: {
-            userId,
             revoked: false,
+            userId,
         },
-        orderBy: {
-            lastActiveAt: "asc",
-        },
-        select: {
-            id: true,
-            createdAt: true,
-        },
+        orderBy,
     });
 };
 
@@ -24,6 +30,18 @@ export const revokeSession = (sessionId: string) => {
         data: {
             revokedAt: new Date(),
             revoked: true,
+        },
+    });
+};
+
+export const updateLastActiveAt = (sessionId: string) => {
+    return prisma.session.update({
+        where: {
+            id: sessionId,
+        },
+        data: {
+            lastActiveAt: new Date(),
+            revoked: false,
         },
     });
 };
