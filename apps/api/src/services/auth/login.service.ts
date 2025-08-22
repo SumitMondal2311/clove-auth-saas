@@ -5,6 +5,7 @@ import { prisma, User } from "../../db/index.js";
 import { findLocalAccount } from "../../db/queries/account.query.js";
 import { findEmailByAddressIncludeUser } from "../../db/queries/email.query.js";
 import { findAllSessionByUserId, revokeSession } from "../../db/queries/session.query.js";
+import { sendVerificationEmail } from "../../emails/service.js";
 import { CloveError } from "../../utils/clove-error.js";
 import { getToken, getUUID } from "../../utils/crypto.js";
 import { expiresAt } from "../../utils/expires-at.js";
@@ -22,7 +23,6 @@ export const loginService = async ({
     password: string;
 }): Promise<
     | {
-          verificationToken: string;
           status: "EMAIL_VERIFICATION_REQUIRED";
       }
     | {
@@ -68,10 +68,9 @@ export const loginService = async ({
             });
         });
 
-        // send verification email
+        await sendVerificationEmail(email, verificationToken.value);
 
         return {
-            verificationToken: verificationToken.value,
             status: "EMAIL_VERIFICATION_REQUIRED",
         };
     }

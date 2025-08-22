@@ -4,6 +4,7 @@
     "scripts": {
         "build": "turbo run build",
         "check-types": "turbo run check-types",
+        "clean": "turbo run clean",
         "db:deploy": "pnpm --filter api db:deploy",
         "db:generate": "pnpm --filter api db:generate",
         "db:migrate": "pnpm --filter api db:migrate",

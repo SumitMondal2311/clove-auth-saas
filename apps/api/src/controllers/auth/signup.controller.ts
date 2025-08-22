@@ -22,7 +22,7 @@ export const signupController = async (req: Request, res: Response, next: NextFu
     }
 
     const { email, password } = parsedSchema.data;
-    const { verificationToken, status } = await signupService({
+    const status = await signupService({
         userAgent: req.headers["user-agent"],
         ipAddress: normalizedIP(req.ip || "unknown"),
         email,
@@ -32,12 +32,10 @@ export const signupController = async (req: Request, res: Response, next: NextFu
     if (status === "EMAIL_UNVERIFIED_RESENT") {
         return res.status(200).json({
             message: "Verification email resent",
-            verificationToken,
         });
     }
 
     res.status(201).json({
         message: "Signed up successfully, please verify you email",
-        verificationToken,
     });
 };

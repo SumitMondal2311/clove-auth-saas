@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import { resolve } from "path";
 import { env } from "../configs/env.js";
 import { findSession } from "../db/queries/session.query.js";
-import { AuthPayload } from "../types/auth-payload.js";
 import { CloveError } from "./clove-error.js";
 
 const secretsDir = resolve(process.cwd(), "secrets");
@@ -19,14 +18,14 @@ if (!privateKey) {
 }
 
 export const signToken = (
-    payload: AuthPayload,
+    payload: jwt.JwtPayload,
     expiresIn: jwt.SignOptions["expiresIn"]
 ): string => {
     payload = {
         ...payload,
         iss: env.JWT_ISS,
         kid: env.JWT_KID,
-    } as AuthPayload;
+    };
     return jwt.sign(payload, privateKey, {
         expiresIn,
         algorithm: "RS256",
@@ -39,12 +38,12 @@ if (!publicKey) {
     process.exit(1);
 }
 
-export const verifyToken = async (token: string): Promise<AuthPayload> => {
+export const verifyToken = async (token: string): Promise<jwt.JwtPayload> => {
     try {
         const payload = jwt.verify(token, publicKey, {
             algorithms: ["RS256"],
             issuer: env.JWT_ISS,
-        }) as AuthPayload;
+        }) as jwt.JwtPayload;
 
         const session = await findSession(payload.session_id || "sessionId");
         if (!session) {

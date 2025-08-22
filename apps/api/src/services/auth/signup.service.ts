@@ -2,14 +2,12 @@ import { hash } from "bcryptjs";
 import { env } from "../../configs/env.js";
 import { prisma } from "../../db/index.js";
 import { findEmailByAddress } from "../../db/queries/email.query.js";
+import { sendVerificationEmail } from "../../emails/service.js";
 import { CloveError } from "../../utils/clove-error.js";
 import { getToken } from "../../utils/crypto.js";
 import { expiresAt } from "../../utils/expires-at.js";
 
-interface ReturnType {
-    verificationToken: string;
-    status: "EMAIL_UNVERIFIED_RESENT" | "SIGNUP_SUCCESS";
-}
+type Status = "EMAIL_UNVERIFIED_RESENT" | "SIGNUP_SUCCESS";
 
 export const signupService = async ({
     ipAddress,
@@ -21,8 +19,8 @@ export const signupService = async ({
     userAgent?: string;
     email: string;
     password: string;
-}): Promise<ReturnType> => {
-    let status: ReturnType["status"] = "SIGNUP_SUCCESS";
+}): Promise<Status> => {
+    let status: Status = "SIGNUP_SUCCESS";
     const emailRecord = await findEmailByAddress(email);
 
     const verificationToken = await prisma.$transaction(async (tx) => {
@@ -104,10 +102,9 @@ export const signupService = async ({
         });
     });
 
-    // send verification email
+    if (verificationToken) {
+        await sendVerificationEmail(email, verificationToken.value);
+    }
 
-    return {
-        verificationToken: verificationToken.value,
-        status,
-    };
+    return status;
 };

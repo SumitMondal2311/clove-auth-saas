@@ -33,9 +33,7 @@ export const loginController = async (req: Request, res: Response, next: NextFun
     });
 
     if (serviceResult.status === "EMAIL_VERIFICATION_REQUIRED") {
-        const { verificationToken } = serviceResult;
         return res.status(200).json({
-            verificationToken,
             message: "Verification email resent",
         });
     }
