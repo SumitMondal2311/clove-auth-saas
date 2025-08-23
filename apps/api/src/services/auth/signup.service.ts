@@ -22,6 +22,7 @@ export const signupService = async ({
 }): Promise<Status> => {
     let status: Status = "SIGNUP_SUCCESS";
     const emailRecord = await findEmailByAddress(email);
+    const tokenSecret = getToken(32);
 
     const verificationToken = await prisma.$transaction(async (tx) => {
         let userId;
@@ -88,8 +89,9 @@ export const signupService = async ({
         });
         return await tx.token.create({
             data: {
-                value: getToken(32),
                 type: "EMAIL_VERIFICATION",
+                secret: await hash(tokenSecret, 10),
+                email,
                 ipAddress,
                 userAgent,
                 expiresAt: expiresAt(env.EMAIL_VERIFICATION_TOKEN_EXPIRY_MS),
@@ -103,7 +105,7 @@ export const signupService = async ({
     });
 
     if (verificationToken) {
-        await sendVerificationEmail(email, verificationToken.value);
+        await sendVerificationEmail(email, `${verificationToken.id}.${tokenSecret}`);
     }
 
     return status;

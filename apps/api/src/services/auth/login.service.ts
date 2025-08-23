@@ -1,4 +1,4 @@
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import { constant } from "../../configs/constant.js";
 import { env } from "../../configs/env.js";
 import { prisma, User } from "../../db/index.js";
@@ -43,6 +43,7 @@ export const loginService = async ({
     }
 
     const { user } = emailRecord;
+    const tokenSecret = getToken(32);
 
     if (!emailRecord.verified) {
         const verificationToken = await prisma.$transaction(async (tx) => {
@@ -54,8 +55,9 @@ export const loginService = async ({
             });
             return await tx.token.create({
                 data: {
-                    value: getToken(32),
                     type: "EMAIL_VERIFICATION",
+                    secret: await hash(tokenSecret, 10),
+                    email,
                     ipAddress,
                     userAgent,
                     expiresAt: expiresAt(env.EMAIL_VERIFICATION_TOKEN_EXPIRY_MS),
@@ -68,7 +70,9 @@ export const loginService = async ({
             });
         });
 
-        await sendVerificationEmail(email, verificationToken.value);
+        if (verificationToken) {
+            await sendVerificationEmail(email, `${verificationToken.id}.${tokenSecret}`);
+        }
 
         return {
             status: "EMAIL_VERIFICATION_REQUIRED",

@@ -5,17 +5,17 @@ import { CloveError } from "../utils/clove-error.js";
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const resendClient = async ({
-    receiverEmail,
     subject,
+    email,
     template,
 }: {
-    receiverEmail: string;
+    email: string;
     subject: string;
     template: string;
 }): Promise<CreateEmailResponseSuccess> => {
     const { data, error } = await resend.emails.send({
         from: "Acme <onboarding@resend.dev>",
-        to: receiverEmail,
+        to: email,
         subject,
         html: template,
     });

@@ -6,7 +6,7 @@ export const findUserIncludeEmail = (userId: string) => {
             id: userId,
         },
         include: {
-            emailAddresses: {
+            emails: {
                 select: {
                     email: true,
                 },

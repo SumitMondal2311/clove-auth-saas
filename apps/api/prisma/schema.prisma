@@ -78,13 +78,13 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  accounts       Account[]
-  emailAddresses Email[]
-  sessions       Session[]
-  tokens         Token[]
-  backupCodes    BackupCode[]
-  auditLogs      AuditLog[]
-  mfaFactors     MfaFactor[]
+  accounts    Account[]
+  emails      Email[]
+  sessions    Session[]
+  tokens      Token[]
+  backupCodes BackupCode[]
+  auditLogs   AuditLog[]
+  mfaFactors  MfaFactor[]
 }
 
 model Account {
@@ -142,10 +142,10 @@ model Token {
   id        String    @id @default(uuid()) @db.Uuid
   userId    String    @db.Uuid
   type      TokenType
-  value     String    @unique
+  secret    String
+  email     String
   ipAddress String?
   userAgent String?
-  used      Boolean   @default(false)
   expiresAt DateTime
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

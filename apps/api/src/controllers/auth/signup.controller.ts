@@ -36,6 +36,6 @@ export const signupController = async (req: Request, res: Response, next: NextFu
     }
 
     res.status(201).json({
-        message: "Signed up successfully, please verify you email",
+        message: "Signed up successfully, please verify your email",
     });
 };
