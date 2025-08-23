@@ -3,6 +3,7 @@ import { constant } from "../../configs/constant.js";
 import { env } from "../../configs/env.js";
 import { verifyEmaiService } from "../../services/auth/verify-email.service.js";
 import { CloveError } from "../../utils/clove-error.js";
+import { normalizedIP } from "../../utils/normalized-ip.js";
 import { signToken } from "../../utils/token.js";
 
 export const verifyEmailController = async (req: Request, res: Response, next: NextFunction) => {
@@ -26,8 +27,8 @@ export const verifyEmailController = async (req: Request, res: Response, next: N
     }
 
     const { refreshToken, user, sessionId } = await verifyEmaiService({
-        ipAddress: req.ip,
         userAgent: req.headers["user-agent"],
+        ipAddress: normalizedIP(req.ip || "unknown"),
         token: decodeURIComponent(token),
     });
 

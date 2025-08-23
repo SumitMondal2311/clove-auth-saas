@@ -1,3 +1,4 @@
+import { compare } from "bcryptjs";
 import { constant } from "../../configs/constant.js";
 import { env } from "../../configs/env.js";
 import { prisma, User } from "../../db/index.js";
@@ -23,17 +24,25 @@ export const verifyEmaiService = async ({
 }> => {
     const [tokenId, secret] = token.split(".");
     if (!tokenId || !secret) {
-        throw new CloveError(404, {
+        throw new CloveError(400, {
             message: "Failed to verify email: Invalid token format",
             details: "Expected token format: <tokenId>.<secret>",
         });
     }
 
-    const tokenRecord = await findToken(tokenId, secret);
+    const tokenRecord = await findToken(tokenId);
     if (!tokenRecord) {
         throw new CloveError(404, {
             message: "Failed to verify email: Token not found",
             details: "No token found in the database",
+        });
+    }
+
+    const secretMatched = await compare(secret, tokenRecord.secret);
+    if (!secretMatched) {
+        throw new CloveError(401, {
+            message: "Failed to verify email: Invalid secret",
+            details: "Secret does not match",
         });
     }
 

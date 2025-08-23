@@ -9,8 +9,8 @@ export const resendClient = async ({
     email,
     template,
 }: {
-    email: string;
     subject: string;
+    email: string;
     template: string;
 }): Promise<CreateEmailResponseSuccess> => {
     const { data, error } = await resend.emails.send({

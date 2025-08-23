@@ -7,7 +7,7 @@ export const sendVerificationEmail = (email: string, token: string) => {
         subject: "Please confirm your email address",
         email,
         template: verifyEmailTemplate(
-            `${env.WEB_ORIGIN}/verify-email?&token=${encodeURIComponent(token)}`
+            `${env.WEB_ORIGIN}/verify-email?token=${encodeURIComponent(token)}`
         ),
     });
 };
