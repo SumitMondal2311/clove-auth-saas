@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "fs";
 import jwt from "jsonwebtoken";
 import { resolve } from "path";
 import { env } from "../configs/env.js";
-import { findSession } from "../db/queries/session.query.js";
+import { AuthJwtPayload } from "../types/index.js";
 import { CloveError } from "./clove-error.js";
 
 const secretsDir = resolve(process.cwd(), "secrets");
@@ -18,7 +18,7 @@ if (!privateKey) {
 }
 
 export const signToken = (
-    payload: jwt.JwtPayload,
+    payload: AuthJwtPayload,
     expiresIn: jwt.SignOptions["expiresIn"]
 ): string => {
     payload = {
@@ -38,22 +38,12 @@ if (!publicKey) {
     process.exit(1);
 }
 
-export const verifyToken = async (token: string): Promise<jwt.JwtPayload> => {
+export const verifyToken = async (token: string): Promise<AuthJwtPayload> => {
     try {
-        const payload = jwt.verify(token, publicKey, {
+        return jwt.verify(token, publicKey, {
             algorithms: ["RS256"],
             issuer: env.JWT_ISS,
-        }) as jwt.JwtPayload;
-
-        const session = await findSession(payload.session_id || "sessionId");
-        if (!session) {
-            throw new CloveError(404, {
-                message: "Session not found",
-                details: "No session found with the payload session id",
-            });
-        }
-
-        return payload;
+        }) as AuthJwtPayload;
     } catch (error) {
         if (
             error instanceof jwt.TokenExpiredError ||

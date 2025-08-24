@@ -5,7 +5,7 @@ services:
         ports:
             - 6301:6379
         volumes:
-            - redis_data:/data
+            - local_redis_data:/data
     postgres:
         image: postgres:17.5-alpine
         restart: unless-stopped
@@ -15,8 +15,8 @@ services:
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: clove
         volumes:
-            - pgdata:/var/lib/postgresql/data
+            - local_pgdata:/var/lib/postgresql/data
 
 volumes:
-    redis_data:
-    pgdata:
+    local_redis_data:
+    local_pgdata:

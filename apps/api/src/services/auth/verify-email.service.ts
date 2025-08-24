@@ -12,24 +12,20 @@ import { signToken } from "../../utils/token.js";
 export const verifyEmaiService = async ({
     ipAddress,
     userAgent,
-    token,
+    secret,
+    tokenId,
 }: {
     ipAddress?: string;
     userAgent?: string;
-    token: string;
+    secret: string;
+    tokenId: string;
 }): Promise<{
     refreshToken: string;
-    user: User;
+    user: User & {
+        email: string;
+    };
     sessionId: string;
 }> => {
-    const [tokenId, secret] = token.split(".");
-    if (!tokenId || !secret) {
-        throw new CloveError(400, {
-            message: "Failed to verify email: Invalid token format",
-            details: "Expected token format: <tokenId>.<secret>",
-        });
-    }
-
     const tokenRecord = await findToken(tokenId);
     if (!tokenRecord) {
         throw new CloveError(404, {
@@ -55,6 +51,13 @@ export const verifyEmaiService = async ({
     }
 
     const { user } = emailRecord;
+
+    if (emailRecord.verified) {
+        throw new CloveError(403, {
+            message: "Failed verify email: Already verified",
+            details: "This email is already verified",
+        });
+    }
 
     if (tokenRecord.userId !== user.id) {
         throw new CloveError(404, {
@@ -144,7 +147,10 @@ export const verifyEmaiService = async ({
 
     return {
         sessionId,
-        user,
+        user: {
+            ...user,
+            email: emailRecord.email,
+        },
         refreshToken,
     };
 };

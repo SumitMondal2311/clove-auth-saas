@@ -13,7 +13,8 @@
         "db:studio": "dotenv -e .env.local prisma studio",
         "dev": "cross-env NODE_ENV=development tsx watch ./src/server.ts",
         "lint": "eslint .",
-        "start": "cross-env NODE_ENV=production node ./dist/server.js"
+        "start": "cross-env NODE_ENV=production node ./dist/server.js",
+        "test:integration": "vitest run tests/integration"
     },
     "dependencies": {
         "@prisma/client": "6.14.0",
@@ -39,8 +40,11 @@
         "@types/geoip-lite": "^1.4.4",
         "@types/jsonwebtoken": "^9.0.10",
         "@types/morgan": "^1.9.10",
+        "@types/supertest": "^6.0.3",
         "dotenv-cli": "^10.0.0",
         "prisma": "^6.14.0",
-        "tsx": "^4.20.3"
+        "supertest": "^7.1.4",
+        "tsx": "^4.20.3",
+        "vitest": "^3.2.4"
     }
 }

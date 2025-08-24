@@ -16,7 +16,9 @@
         "format": "prettier --write \"**/*.{json,js,mjs,ts,jsx,tsx}\"",
         "lint": "turbo run lint",
         "prepare": "husky",
-        "start": "turbo run start"
+        "start": "turbo run start",
+        "test:integration": "turbo test:integration",
+        "test:unit": "turbo test:unit"
     },
     "lint-staged": {
         "**/*.{json,js,mjs,ts,jsx,tsx}": "prettier --write"

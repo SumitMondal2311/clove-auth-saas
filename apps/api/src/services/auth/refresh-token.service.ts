@@ -21,7 +21,7 @@ export const refreshTokenService = async (
         });
     }
 
-    const session = await findSession(session_id || "sessionId");
+    const session = await findSession(session_id || "");
     if (!session) {
         throw new CloveError(404, {
             message: "Session not found",
@@ -60,10 +60,10 @@ export const refreshTokenService = async (
     });
 
     await redis.set(
-        redisKey.blacklistJti(jti || "jti"),
+        redisKey.blacklistJti(jti || ""),
         "revoked",
         "EX",
-        Math.ceil(exp ? exp - Date.now() : env.REFRESH_TOKEN_EXPIRY)
+        Math.ceil(exp ? Math.max(0, exp - Date.now() / 1000) : env.REFRESH_TOKEN_EXPIRY)
     );
 
     return {

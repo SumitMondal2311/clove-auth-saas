@@ -35,20 +35,18 @@ export const authMiddleware = async (req: Request, _res: Response, next: NextFun
         );
     }
 
-    const session = await findSession(session_id || "sessionId");
+    const session = await findSession(session_id || "");
     if (!session) {
-        return next(
-            new CloveError(404, {
-                message: "Session not found",
-                details: "No active session found",
-            })
-        );
+        throw new CloveError(401, {
+            message: "Session not found",
+            details: "No session found associated with then token",
+        });
     }
 
-    const userIncludeEmails = await findUserIncludeEmail(sub || "userId");
+    const userIncludeEmails = await findUserIncludeEmail(sub || "");
     if (!userIncludeEmails) {
         return next(
-            new CloveError(404, {
+            new CloveError(401, {
                 message: "User not found",
                 details: "No user associated with the token",
             })
@@ -57,12 +55,12 @@ export const authMiddleware = async (req: Request, _res: Response, next: NextFun
 
     // update at a minimum time-gap of 5 mins
     if (Date.now() - session.lastActiveAt.getTime() > 300 * 1000) {
-        await updateLastActiveAt(session_id || "sessionId");
+        await updateLastActiveAt(session.id);
     }
 
     req.authData = {
         user: userIncludeEmails,
-        sessionId: session_id,
+        sessionId: session.id,
     };
 
     next();

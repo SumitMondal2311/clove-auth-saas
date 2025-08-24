@@ -39,6 +39,10 @@
         "start": {
             "dependsOn": ["^start"],
             "cache": false
+        },
+        "test:integration": {
+            "dependsOn": ["^test:integration"],
+            "cache": false
         }
     }
 }

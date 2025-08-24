@@ -12,6 +12,16 @@ export const findSession = (sessionId: string, loginMethod: LoginMethod = "EMAIL
     });
 };
 
+export const findSessionByUserId_Jti = (userId: string, jti: string) => {
+    return prisma.session.findUnique({
+        where: {
+            refreshJti: jti,
+            userId,
+            revoked: false,
+        },
+    });
+};
+
 export const findAllSessionByUserId = (
     userId: string,
     orderBy: Prisma.SessionOrderByWithAggregationInput

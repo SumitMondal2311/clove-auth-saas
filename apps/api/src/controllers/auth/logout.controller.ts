@@ -8,8 +8,8 @@ export const logoutController = async (req: Request, res: Response, next: NextFu
     if (!refreshToken) {
         return next(
             new CloveError(401, {
-                message: "Missing refresh token",
-                details: "Refresh token is missing from the cookies",
+                message: "Failed to log out: Missing refresh token",
+                details: "Refresh token is missing from the cookie",
             })
         );
     }

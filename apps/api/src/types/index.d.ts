@@ -1,3 +1,4 @@
+import { JwtPayload } from "jsonwebtoken";
 import { User } from "../db/index.js";
 
 declare global {
@@ -5,15 +6,17 @@ declare global {
         interface Request {
             authData?: {
                 sessionId: string;
-                user: User;
+                user: User & {
+                    emails: {
+                        email: string;
+                    }[];
+                };
             };
         }
     }
 }
 
-declare module "jsonwebtoken" {
-    interface JwtPayload {
-        type: "access" | "refresh";
-        session_id: string;
-    }
+interface AuthJwtPayload extends JwtPayload {
+    type?: "refresh" | "access";
+    session_id?: string;
 }
