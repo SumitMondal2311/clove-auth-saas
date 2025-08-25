@@ -4,13 +4,6 @@
     "type": "module",
     "exports": {
         "./node": "./node.json",
-        "./util": "./util.json"
-    },
-    "devDependencies": {
-        "@eslint/js": "^9.31.0",
-        "eslint-config-prettier": "^10.1.5",
-        "eslint-plugin-turbo": "^2.5.5",
-        "globals": "^16.3.0",
-        "typescript-eslint": "^8.35.1"
+        "./next": "./next.json"
     }
 }

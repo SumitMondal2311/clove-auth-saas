@@ -14,9 +14,7 @@ export const envSchema = z.object({
     REFRESH_TOKEN_EXPIRY: z.string().transform((str) => eval(str)),
     ACCESS_TOKEN_EXPIRY: z.string().transform((str) => eval(str)),
     EMAIL_VERIFICATION_TOKEN_EXPIRY_MS: z.string().transform((str) => eval(str)),
-    RESEND_API_KEY: z.string(),
-    TEST_EMAIL: z.string(),
-    TEST_PASSWORD: z.string(),
+    RESEND_API_KEY: z.string().optional(),
 });
 
 export const authSchema = z.object({
